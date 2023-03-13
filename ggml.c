@@ -15,9 +15,6 @@
 #include <stdio.h>
 #include <float.h>
 
-#define __AVX2__
-#define __AVX512F__
-
 // if C99 - static_assert is noop
 // ref: https://stackoverflow.com/a/53923785/4039976
 #ifndef static_assert
@@ -360,10 +357,11 @@ static const size_t CACHE_LINE_SIZE_F32 = CACHE_LINE_SIZE/sizeof(float);
 // quantization
 //
 
+#define QK 32
 
 // AVX routines provided by GH user Const-me
 // ref: https://github.com/ggerganov/ggml/pull/27#issuecomment-1464934600
-#if defined(__AVX2__)
+#if __AVX2__
 // Unpack 32 4-bit fields into 32 bytes
 // The output vector contains 32 bytes, each one in [ 0 .. 15 ] interval
 inline __m256i bytesFromNibbles( const uint8_t* rsi )
@@ -9620,8 +9618,7 @@ static struct ggml_tensor * ggml_graph_get_parent(const struct ggml_cgraph * cgr
 void ggml_graph_dump_dot(const struct ggml_cgraph * gb, const struct ggml_cgraph * gf, const char * filename) {
     char color[16];
 
-    FILE* fp;
-    
+	FILE *fp;
     fopen_s(&fp, filename, "w");
     GGML_ASSERT(fp);
 
